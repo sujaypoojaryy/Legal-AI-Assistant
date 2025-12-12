@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legal AI Assistant | India's Premier Legal Information Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'legal-blue': '#1e3a8a',
+                        'legal-light': '#3b82f6',
+                        'legal-dark': '#1e40af',
+                        'accent-gold': '#f59e0b',
+                        'accent-teal': '#0d9488',
+                        'accent-purple': '#7c3aed',
+                        'legal-bg': '#f8fafc',
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'slide-in': 'slideIn 0.3s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideIn: {
+                            '0%': { transform: 'translateY(10px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        .professional-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2d4ea8 50%, #3b82f6 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-chat-container {
+            background: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 
+                0 10px 25px -5px rgba(0, 0, 0, 0.1), 
+                0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        .user-message-enhanced {
+            background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+            color: white;
+            border-bottom-right-radius: 0.5rem;
+            position: relative;
+        }
+
+        .user-message-enhanced::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -8px;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-left-color: #1e40af;
+            border-bottom-color: #1e40af;
+        }
+
+        .bot-message-enhanced {
+            background: white;
+            border: 1px solid rgba(229, 231, 235, 0.8);
+            border-bottom-left-radius: 0.5rem;
+            position: relative;
+        }
+
+        .bot-message-enhanced::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -8px;
+            width: 0;
+            height: 0;
+            border: 8px solid transparent;
+            border-right-color: white;
+            border-bottom-color: white;
+        }
+
+        .micro-interaction:hover {
+            transform: translateY(-2px);
+            transition: all 0.3s ease;
+        }
+
+        .send-button-enhanced {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            box-shadow: 0 4px 6px rgba(30, 58, 138, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .send-button-enhanced:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(30, 58, 138, 0.3);
+        }
+
+        .modern-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modern-scrollbar::-webkit-scrollbar-track {
+            background: rgba(241, 241, 241, 0.5);
+            border-radius: 10px;
+        }
+
+        .modern-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(193, 193, 193, 0.7);
+            border-radius: 10px;
+        }
+
+        .modern-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(168, 168, 168, 0.9);
+        }
+
+        .category-card {
+            transition: all 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .focus-visible:focus {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 20px;
+        }
+
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #9ca3af;
+            margin: 0 2px;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1001;
+            display: flex;
+            align-items: center;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .progress-bar {
+            height: 4px;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #3b82f6;
+            transition: width 3s linear;
+        }
+
+        .active-progress {
+            width: 100%;
+        }
+
+        .legal-resource-card {
+            transition: all 0.3s ease;
+        }
+
+        .legal-resource-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dashboard-card {
+            transition: all 0.3s ease;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .new-feature-tag {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            color: white;
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .feature-highlight {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-tab {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .resource-tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .search-suggestion {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .search-suggestion:hover {
+            background: #f1f5f9;
+        }
+
+        .mobile-menu {
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+
+        /* Enhanced legal text formatting */
+        .legal-provision {
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .legal-citation {
+            font-family: 'Courier New', monospace;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .confidence-indicator {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #f8faf9, #3b82f6);
+            transition: width 0.5s ease;
+        }
+
+        /* Responsive container */
+        .responsive-container {
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .responsive-container {
+                max-width: 640px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .responsive-container {
+                max-width: 768px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .responsive-container {
+                max-width: 1024px;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .responsive-container {
+                max-width: 1280px;
+            }
+        }
+
+        @media (min-width: 1536px) {
+            .responsive-container {
+                max-width: 1536px;
+            }
+        }
+
+        /* Chat interface optimization */
+        .chat-interface {
+            width: 100%;
+            height: 70vh;
+            min-height: 500px;
+        }
+
+        @media (min-width: 768px) {
+            .chat-interface {
+                height: 75vh;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .chat-interface {
+                height: 80vh;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .chat-interface {
+                height: 85vh;
+            }
+        }
+
+        /* Grid optimization */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr 3fr;
+            }
+        }
+
+        /* Typography scaling */
+        .scale-text {
+            font-size: clamp(1rem, 2vw, 1.25rem);
+        }
+
+        .scale-heading {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+        }
+
+        /* Card grid optimization */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Legal expert badge */
+        .legal-expert-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body class="font-inter flex flex-col min-h-screen bg-legal-bg">
+
+<!-- Notification System -->
+<div id="notification" class="notification">
+    <i class="fas fa-check-circle text-green-500 mr-2"></i>
+    <span id="notification-text">Action completed successfully!</span>
+    <div class="progress-bar">
+        <div class="progress-fill"></div>
+    </div>
+</div>
+
+<!-- Professional Header with Navigation -->
+<header class="professional-header text-white py-4 px-6 shadow-lg sticky top-0 z-50">
+    <div class="responsive-container flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="bg-white p-2 rounded-full shadow-lg">
+                <i class="fas fa-balance-scale text-legal-blue text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold">Legal AI Assistant</h1>
+                <p class="text-xs opacity-90">AI Powered Legal Intelligence Platform</p>
+            </div>
+        </div>
+        
+        <nav class="hidden md:flex space-x-6">
+            <a href="#" class="text-sm font-medium hover:text-accent-gold transition-colors">Home</a>
+            <a href="#" class="text-sm font-medium hover:text-accent-gold transition-colors">Legal Resources</a>
+            <a href="#" class="text-sm font-medium hover:text-accent-gold transition-colors">Case Laws</a>
+            <a href="#" class="text-sm font-medium hover:text-accent-gold transition-colors">Case Studies</a>
+            <a href="#" class="text-sm font-medium hover:text-accent-gold transition-colors">Legal Experts</a>
+            <a href="#" class="text-sm font-medium hover:text-accent-gold transition-colors">Contact</a>
+        </nav>
+        
+        <div class="flex items-center space-x-4">
+            <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg bg-white bg-opacity-20">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button id="login-btn" class="bg-white text-legal-blue px-4 py-2 rounded-lg font-semibold text-sm shadow-md hover:shadow-lg transition-all">
+                <i class="fas fa-user-tie mr-2"></i>Legal Expert Login
+            </button>
+        </div>
+    </div>
+</header>
+
+<!-- Mobile Menu -->
+<div id="mobile-menu" class="mobile-menu fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-50 p-6">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-lg font-bold text-legal-blue">Menu</h2>
+        <button id="close-mobile-menu" class="p-2 rounded-lg bg-gray-100">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <nav class="space-y-4">
+        <a href="#" class="block py-2 px-4 rounded-lg bg-legal-light text-white font-medium">Home</a>
+        <a href="#" class="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">Legal Resources</a>
+        <a href="#" class="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">Case Laws</a>
+        <a href="#" class="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">Case Studies</a>
+        <a href="#" class="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">Legal Experts</a>
+        <a href="#" class="block py-2 px-4 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">Contact</a>
+    </nav>
+    
+    <div class="mt-8 pt-6 border-t border-gray-200">
+        <h3 class="font-semibold text-gray-800 mb-3">Quick Legal Tools</h3>
+        <div class="space-y-2">
+            <button class="w-full text-left py-2 px-4 rounded-lg text-sm bg-blue-50 text-legal-blue hover:bg-blue-100 transition-colors">
+                <i class="fas fa-file-contract mr-2"></i>Legal Document Generator
+            </button>
+            <button class="w-full text-left py-2 px-4 rounded-lg text-sm bg-green-50 text-green-700 hover:bg-green-100 transition-colors">
+                <i class="fas fa-search mr-2"></i>Case Law Search
+            </button>
+            <button class="w-full text-left py-2 px-4 rounded-lg text-sm bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors">
+                <i class="fas fa-calculator mr-2"></i>Legal Calculator
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Hero Section -->
+<section class="py-12 px-6 bg-gradient-to-br from-legal-blue to-legal-light text-white relative overflow-hidden">
+    <div class="responsive-container text-center">
+        <h2 class="scale-heading font-bold mb-4 animate-fade-in">DIGITAL LEGAL INFORMATION & INTELLIGENCE PLATFORM</h2>
+        <p class="scale-text opacity-90 mb-8 mx-auto animate-fade-in" style="animation-delay: 0.1s;">
+            Access Comprehensive legal Information, Understand Your Rights, Navigate The Indian legal System With Confidence.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4 animate-fade-in" style="animation-delay: 0.2s;">
+            <button class="bg-white text-legal-blue px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center micro-interaction">
+                <i class="fas fa-play-circle mr-2"></i> How It Works
+            </button>
+            <button class="bg-accent-gold text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center micro-interaction">
+                <i class="fas fa-book mr-2"></i> Legal Library
+            </button>
+            <button class="bg-accent-teal text-white px-6 py-3 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center micro-interaction">
+                <i class="fas fa-search mr-2"></i> Search Case Laws
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Main Content -->
+<main class="flex-1 py-8">
+    <div class="responsive-container">
+        <!-- Dashboard Stats Section REMOVED -->
+        
+        <div class="content-grid">
+            <!-- Sidebar with Legal Resources -->
+            <aside>
+                <div class="bg-white rounded-2xl shadow-lg p-6 h-fit sticky top-8">
+                    <h3 class="font-bold text-lg text-legal-blue mb-4 flex items-center">
+                        <i class="fas fa-gavel mr-2"></i> Legal Categories
+                    </h3>
+                    
+                    <div class="space-y-3 mb-8">
+                        <div class="category-card bg-white p-4 rounded-xl border border-gray-200 cursor-pointer transition-all hover:border-legal-light" data-category="constitutional">
+                            <h4 class="font-semibold text-gray-800">Constitutional Law</h4>
+                            <p class="text-xs text-gray-600 mt-1">Fundamental Rights, DPSP, Constitutional Amendments</p>
+                        </div>
+                        <div class="category-card bg-white p-4 rounded-xl border border-gray-200 cursor-pointer transition-all hover:border-legal-light" data-category="criminal">
+                            <h4 class="font-semibold text-gray-800">Criminal Law</h4>
+                            <p class="text-xs text-gray-600 mt-1">IPC, CrPC, Evidence Act, Bharatiya Nyaya Sanhita</p>
+                        </div>
+                        <div class="category-card bg-white p-4 rounded-xl border border-gray-200 cursor-pointer transition-all hover:border-legal-light" data-category="civil">
+                            <h4 class="font-semibold text-gray-800">Civil Law</h4>
+                            <p class="text-xs text-gray-600 mt-1">CPC, Contract Act, Property Law, Family Law</p>
+                        </div>
+                        <div class="category-card bg-white p-4 rounded-xl border border-gray-200 cursor-pointer transition-all hover:border-legal-light" data-category="commercial">
+                            <h4 class="font-semibold text-gray-800">Commercial Law</h4>
+                            <p class="text-xs text-gray-600 mt-1">Companies Act, IBC, Competition Law, Taxation</p>
+                        </div>
+                        <div class="category-card bg-white p-4 rounded-xl border border-gray-200 cursor-pointer transition-all hover:border-legal-light" data-category="digital">
+                            <h4 class="font-semibold text-gray-800">Cyber & Digital Law</h4>
+                            <p class="text-xs text-gray-600 mt-1">IT Act, DPDP Act, Cyber Security Regulations</p>
+                        </div>
+                        <div class="category-card bg-white p-4 rounded-xl border border-gray-200 cursor-pointer transition-all hover:border-legal-light" data-category="labor">
+                            <h4 class="font-semibold text-gray-800">Labor Law</h4>
+                            <p class="text-xs text-gray-600 mt-1">Industrial Disputes Act, Factories Act, Social Security</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-gradient-to-r from-legal-blue to-legal-light p-4 rounded-xl text-white">
+                        <h4 class="font-bold mb-2">Need Human Assistance?</h4>
+                        <p class="text-sm mb-3">Connect with verified legal experts for personalized advice.</p>
+                        <button class="bg-white text-legal-blue w-full py-2 rounded-lg font-semibold text-sm shadow-md hover:shadow-lg transition-all micro-interaction">
+                            Find a Lawyer
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Recent Legal Updates -->
+                <div class="dashboard-card p-5 mt-6">
+                    <h4 class="font-bold text-gray-800 mb-3">Recent Legal Updates</h4>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-blue-50 rounded-lg">
+                            <p class="text-sm font-medium">Bharatiya Nyaya Sanhita, 2023</p>
+                            <p class="text-xs text-gray-600">New criminal laws effective from July 1, 2024</p>
+                        </div>
+                        <div class="p-3 bg-green-50 rounded-lg">
+                            <p class="text-sm font-medium">DPDP Act, 2023</p>
+                            <p class="text-xs text-gray-600">Data protection rules notified</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+            
+            <!-- Main Content Area -->
+            <div>
+                <!-- Enhanced Chat Container -->
+                <div class="modern-chat-container rounded-2xl overflow-hidden shadow-xl chat-interface flex flex-col mb-8">
+                    
+                    <!-- Enhanced Chat Header -->
+                    <div class="professional-header px-6 py-4 flex justify-between items-center">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-white p-2 rounded-full">
+                                <i class="fas fa-robot text-legal-blue"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-white">Legal AI Assistant</h3>
+                                <div class="flex items-center gap-2">
+                                    <span class="legal-expert-badge text-xs">Powered by Legal Experts</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all focus-visible micro-interaction" title="Clear Chat">
+                                <i class="fas fa-trash text-white"></i>
+                            </button>
+                            <button class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all focus-visible micro-interaction" title="Save Conversation">
+                                <i class="fas fa-save text-white"></i>
+                            </button>
+                            <button class="p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all focus-visible micro-interaction" title="Share">
+                                <i class="fas fa-share text-white"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat History -->
+                    <div id="chat-history" class="flex-1 p-6 overflow-y-auto modern-scrollbar bg-white">
+                        <div class="space-y-4">
+                            <!-- Welcome Message -->
+                            <div class="bot-message-enhanced rounded-2xl p-4 max-w-[85%] animate-fade-in">
+                                <div class="flex items-start space-x-3">
+                                    <div class="bg-legal-light p-2 rounded-full mt-1">
+                                        <i class="fas fa-robot text-white text-sm"></i>
+                                    </div>
+                                    <div class="flex-1">
+                                        <p class="text-gray-800">Welcome to the Legal Assistant! I'm here to provide comprehensive information about Indian laws, rights, and legal procedures. How can I assist you today?</p>
+                                        <div class="flex flex-wrap gap-2 mt-3">
+                                            <span class="bg-blue-100 text-legal-blue px-3 py-1 rounded-full text-xs font-medium">Constitutional Law</span>
+                                            <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">Criminal Law</span>
+                                            <span class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-xs font-medium">Civil Law</span>
+                                            <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-medium">Commercial Law</span>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-2 flex justify-between">
+                                            <span>Legal AI Assistant</span>
+                                            <span id="current-time">10:00 AM</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="px-6 py-4 border-t border-gray-200 bg-white">
+                        <div class="flex overflow-x-auto pb-2 space-x-3 modern-scrollbar">
+                            <button class="quick-action bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition-colors focus-visible micro-interaction border border-gray-200" data-question="What is the DPDP Act?">
+                                <i class="fas fa-file-contract mr-2"></i>DPDP Act
+                            </button>
+                            <button class="quick-action bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition-colors focus-visible micro-interaction border border-gray-200" data-question="Explain IPC Section 420">
+                                <i class="fas fa-balance-scale-left mr-2"></i>IPC Section 420
+                            </button>
+                            <button class="quick-action bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition-colors focus-visible micro-interaction border border-gray-200" data-question="What are my consumer protection rights?">
+                                <i class="fas fa-user-shield mr-2"></i>Consumer Rights
+                            </button>
+                            <button class="quick-action bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition-colors focus-visible micro-interaction border border-gray-200" data-question="How to file a civil suit?">
+                                <i class="fas fa-gavel mr-2"></i>File Civil Suit
+                            </button>
+                            <button class="quick-action bg-white text-gray-700 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50 transition-colors focus-visible micro-interaction border border-gray-200" data-question="What is the new Bharatiya Nyaya Sanhita?">
+                                <i class="fas fa-book mr-2"></i>New Criminal Laws
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Chat Input Area -->
+                    <div class="px-6 py-4 border-t border-gray-200 bg-white">
+                        <div class="flex space-x-3">
+                            <div class="flex-1 relative">
+                                <input 
+                                    type="text" 
+                                    id="user-input"
+                                    placeholder="Ask a question about Indian law, rights, or legal procedures..." 
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-legal-light focus:border-transparent outline-none transition-all focus-visible"
+                                >
+                                <button class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-legal-light transition-colors focus-visible micro-interaction">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                                
+                                <!-- Search Suggestions -->
+                                <div id="search-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10 hidden">
+                                    <!-- Suggestions will be populated here -->
+                                </div>
+                            </div>
+                            <button id="voice-btn" class="p-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors focus-visible micro-interaction">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button id="send-button" class="send-button-enhanced px-6 py-3 text-white rounded-xl font-semibold flex items-center micro-interaction">
+                                <i class="fas fa-paper-plane mr-2"></i> Send
+                            </button>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">
+                            <i class="fas fa-shield-alt mr-1"></i> Your conversations are secure and private
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Legal Resources Section -->
+                <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+                    <div class="border-b border-gray-200">
+                        <div class="flex overflow-x-auto">
+                            <button class="resource-tab px-6 py-3 font-medium text-sm border-b-2 border-transparent active" data-tab="resources">
+                                Legal Resources
+                            </button>
+                            <button class="resource-tab px-6 py-3 font-medium text-sm border-b-2 border-transparent" data-tab="tools">
+                                Legal Tools
+                            </button>
+                            <button class="resource-tab px-6 py-3 font-medium text-sm border-b-2 border-transparent" data-tab="updates">
+                                Legal Updates
+                            </button>
+                            <button class="resource-tab px-6 py-3 font-medium text-sm border-b-2 border-transparent" data-tab="forms">
+                                Legal Forms
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div id="resources-content" class="tab-content active">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-blue-100 p-2 rounded-lg">
+                                            <i class="fas fa-file-alt text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Legal Dictionary</h4>
+                                            <p class="text-sm text-gray-600 mt-1">legal terms and definitions</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-green-100 p-2 rounded-lg">
+                                            <i class="fas fa-balance-scale text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Case Law Database</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Supreme Court & High Court judgments</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-purple-100 p-2 rounded-lg">
+                                            <i class="fas fa-book text-purple-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Statute Library</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Complete texts of Indian Acts & Amendments</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-yellow-100 p-2 rounded-lg">
+                                            <i class="fas fa-gavel text-yellow-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Legal Procedures</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Step-by-step guides for legal processes</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-red-100 p-2 rounded-lg">
+                                            <i class="fas fa-graduation-cap text-red-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Legal Education</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Courses & tutorials on Indian law</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-teal-100 p-2 rounded-lg">
+                                            <i class="fas fa-newspaper text-teal-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Legal Journals</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Academic articles & research papers</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="tools-content" class="tab-content hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-red-100 p-2 rounded-lg">
+                                            <i class="fas fa-calculator text-red-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Legal Calculator</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Calculate court fees, interest, compensation</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-indigo-100 p-2 rounded-lg">
+                                            <i class="fas fa-file-pdf text-indigo-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Document Generator</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Create legal notices, agreements, affidavits</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-pink-100 p-2 rounded-lg">
+                                            <i class="fas fa-search text-pink-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Case Law Search</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Advanced search through judgments</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="updates-content" class="tab-content hidden">
+                            <div class="space-y-4">
+                                <div class="feature-highlight p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Bharatiya Nyaya Sanhita, 2023</h4>
+                                    <p class="text-sm text-gray-600 mt-1">New criminal laws replacing IPC, CrPC, and Evidence Act effective from July 1, 2024.</p>
+                                    <button class="text-legal-light text-sm font-medium mt-2">Read More</button>
+                                </div>
+                                <div class="feature-highlight p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Digital Personal Data Protection Act, 2023</h4>
+                                    <p class="text-sm text-gray-600 mt-1">Comprehensive data protection framework for India with new compliance requirements.</p>
+                                    <button class="text-legal-light text-sm font-medium mt-2">Read More</button>
+                                </div>
+                                <div class="feature-highlight p-4 rounded-lg">
+                                    <h4 class="font-semibold text-gray-800">Supreme Court on Right to Privacy</h4>
+                                    <p class="text-sm text-gray-600 mt-1">Latest judgment expands the scope of Article 21 to include digital privacy rights.</p>
+                                    <button class="text-legal-light text-sm font-medium mt-2">Read More</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="forms-content" class="tab-content hidden">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-blue-100 p-2 rounded-lg">
+                                            <i class="fas fa-file-signature text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Legal Notices</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Ready-to-use legal notice templates</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-green-100 p-2 rounded-lg">
+                                            <i class="fas fa-handshake text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Agreements</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Rental, sale, service agreements</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="legal-resource-card p-4 rounded-xl border border-gray-200 hover:border-legal-light transition-all">
+                                    <div class="flex items-start space-x-3">
+                                        <div class="bg-purple-100 p-2 rounded-lg">
+                                            <i class="fas fa-user-tie text-purple-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold text-gray-800">Affidavits</h4>
+                                            <p class="text-sm text-gray-600 mt-1">Various affidavit formats</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trust Indicators -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg text-center">
+                        <div class="bg-green-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-shield-alt text-green-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-800 mb-2">Secure & Confidential</h4>
+                        <p class="text-sm text-gray-600">Your conversations are encrypted and never shared</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg text-center">
+                        <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-gavel text-blue-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-800 mb-2">Legal Expertise</h4>
+                        <p class="text-sm text-gray-600">Information verified by legal professionals</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl shadow-lg text-center">
+                        <div class="bg-purple-100 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i class="fas fa-clock text-purple-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-gray-800 mb-2">24/7 Availability</h4>
+                        <p class="text-sm text-gray-600">Get answers to legal questions anytime</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-gray-800 text-white py-8 px-6 mt-12">
+    <div class="responsive-container">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+                <h4 class="font-bold text-lg mb-4">Legal AI Assistant</h4>
+                <p class="text-gray-400 text-sm">Your trusted partner for legal information and guidance in India.</p>
+                <div class="mt-3">
+                    <span class="legal-expert-badge text-xs">AI Powered Legal Intelligence Platform</span>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Legal Resources</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Legal Dictionary</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Case Laws</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Statutes</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Legal Forms</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Support</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Contact Legal Experts</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Connect With Us</h4>
+                <div class="flex space-x-4">
+                    <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-legal-light transition-colors micro-interaction">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-legal-light transition-colors micro-interaction">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-legal-light transition-colors micro-interaction">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-legal-light transition-colors micro-interaction">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm text-gray-400">
+            <p>© 2025 Legal AI Assistant. This is a simulated legal AI assistant. The information provided is for educational and informational purposes only and does not constitute legal advice.</p>
+            <p class="mt-2">Always consult with a qualified legal professional for specific legal matters.</p>
+        </div>
+    </div>
+</footer>
+
+<script src="index.js"></script>
+</body>
+</html>
